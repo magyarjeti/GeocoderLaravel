@@ -36,7 +36,11 @@ class GeocoderServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->package('toin0u/geocoder-laravel');
+        $config_path = realpath(__DIR__ . '/../../config/config.php');
+
+        $this->publishes([
+            $config_path => config_path('geocoder.php')
+        ]);
     }
 
     /**
@@ -47,7 +51,7 @@ class GeocoderServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->singleton('geocoder.adapter', function($app) {
-            $adapter = $app['config']->get('geocoder-laravel::adapter');
+            $adapter = $app['config']->get('geocoder.adapter');
 
             return new $adapter;
         });
@@ -55,7 +59,7 @@ class GeocoderServiceProvider extends ServiceProvider
         $this->app->singleton('geocoder.chain', function($app) {
             $providers = array();
 
-            foreach($app['config']->get('geocoder-laravel::providers') as $provider => $arguments) {
+            foreach($app['config']->get('geocoder.providers') as $provider => $arguments) {
                 if (0 !== count($arguments)) {
                     $providers[] = call_user_func_array(
                         function ($arg1 = null, $arg2 = null, $arg3 = null, $arg4 = null) use ($app, $provider) {
